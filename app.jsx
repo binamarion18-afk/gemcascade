@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Plus, MapPin, DollarSign, MessageSquare, User } from 'lucide-react';
 
 export default function TaskApp() {
