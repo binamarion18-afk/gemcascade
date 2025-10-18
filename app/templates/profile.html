@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block content %}
+<h3>Profile</h3>
+<form id="profileForm" class="mb-3">
+  <input class="form-control mb-2" name="county" placeholder="County">
+  <textarea class="form-control mb-2" name="bio" placeholder="Bio"></textarea>
+  <textarea class="form-control mb-2" name="goals" placeholder="Goals"></textarea>
+  <button class="btn btn-success" type="submit">Save</button>
+</form>
+<div class="card p-2">
+  <pre id="profileData" class="mb-0" style="white-space:pre-wrap"></pre>
+</div>
+<script>
+async function loadProfile(){
+  const res = await fetch('/api/users/profile');
+  if(!res.ok){ window.location = '/login'; return }
+  const data = await res.json();
+  document.getElementById('profileData').textContent = JSON.stringify(data, null, 2);
+}
+
+document.getElementById('profileForm').addEventListener('submit', async (e)=>{
+  e.preventDefault();
+  const f = new FormData(e.target);
+  const payload = Object.fromEntries(f.entries());
+  const res = await fetch('/api/users/profile', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload)});
+  if(res.ok){ await loadProfile(); }
+});
+
+loadProfile();
+</script>
+{% endblock %}

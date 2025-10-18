@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% block content %}
+<h3>Rooms</h3>
+<form id="createRoom" class="mb-3">
+  <input class="form-control mb-2" name="title" placeholder="Title" required>
+  <select class="form-select mb-2" name="category">
+    <option value="general">General</option>
+    <option value="tech">Tech</option>
+    <option value="business">Business</option>
+    <option value="music">Music</option>
+  </select>
+  <button class="btn btn-success" type="submit">Create</button>
+</form>
+<ul id="roomsList" class="list-group"></ul>
+<script>
+async function loadRooms(){
+  const res = await fetch('/api/rooms');
+  if(!res.ok){ window.location = '/login'; return }
+  const data = await res.json();
+  const list = document.getElementById('roomsList');
+  list.innerHTML = '';
+  data.forEach(r => {
+    const li = document.createElement('li');
+    li.className = 'list-group-item d-flex justify-content-between align-items-center';
+    li.innerHTML = `<span>${r.title} <small class="text-muted">#${r.category}</small></span>`+
+                   `<button class='btn btn-sm btn-primary' onclick='joinRoom(${r.id})'>Join</button>`;
+    list.appendChild(li);
+  })
+}
+async function joinRoom(id){
+  await fetch('/api/rooms/join', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({room_id:id})});
+  alert('Joined room '+id);
+}
+
+document.getElementById('createRoom').addEventListener('submit', async (e)=>{
+  e.preventDefault();
+  const f = new FormData(e.target);
+  const payload = Object.fromEntries(f.entries());
+  const res = await fetch('/api/rooms/create', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload)});
+  if(res.ok){ await loadRooms(); e.target.reset(); }
+});
+loadRooms();
+</script>
+{% endblock %}
