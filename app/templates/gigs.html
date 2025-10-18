@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% block content %}
+<h3>Gigs</h3>
+<form id="createGig" class="mb-3">
+  <input class="form-control mb-2" name="title" placeholder="Title" required>
+  <textarea class="form-control mb-2" name="description" placeholder="Description"></textarea>
+  <input class="form-control mb-2" name="budget_kes" type="number" placeholder="Budget (KES)">
+  <button class="btn btn-success" type="submit">Post Gig</button>
+</form>
+<ul id="gigsList" class="list-group"></ul>
+<script>
+async function loadGigs(){
+  const res = await fetch('/api/gigs');
+  if(!res.ok){ window.location = '/login'; return }
+  const data = await res.json();
+  const list = document.getElementById('gigsList');
+  list.innerHTML = '';
+  data.forEach(g => {
+    const li = document.createElement('li');
+    li.className = 'list-group-item';
+    li.innerHTML = `<div class='d-flex justify-content-between align-items-center'>`+
+                   `<div><strong>${g.title}</strong><br><small>${g.description}</small></div>`+
+                   `<div><span class='badge bg-dark'>KES ${g.budget_kes}</span> `+
+                   `<button class='btn btn-sm btn-primary' onclick='applyGig(${g.id})'>Apply</button></div>`+
+                   `</div>`;
+    list.appendChild(li);
+  })
+}
+async function applyGig(id){
+  const pitch = prompt('Enter a short pitch:') || '';
+  await fetch('/api/gigs/apply', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({gig_id:id, pitch})});
+  alert('Applied to gig '+id);
+}
+
+document.getElementById('createGig').addEventListener('submit', async (e)=>{
+  e.preventDefault();
+  const f = new FormData(e.target);
+  const payload = Object.fromEntries(f.entries());
+  const res = await fetch('/api/gigs/create', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload)});
+  if(res.ok){ await loadGigs(); e.target.reset(); }
+});
+loadGigs();
+</script>
+{% endblock %}

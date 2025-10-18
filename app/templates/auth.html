@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% block content %}
+<h3>Login</h3>
+<form id="loginForm" class="mb-3">
+  <input class="form-control mb-2" name="email" placeholder="Email" required>
+  <input class="form-control mb-2" name="password" placeholder="Password" type="password" required>
+  <button class="btn btn-success w-100" type="submit">Login</button>
+</form>
+<hr>
+<h3>Register</h3>
+<form id="registerForm">
+  <input class="form-control mb-2" name="name" placeholder="Name" required>
+  <input class="form-control mb-2" name="email" placeholder="Email" required>
+  <input class="form-control mb-2" name="phone" placeholder="Safaricom Number (2547...)" required>
+  <input class="form-control mb-2" name="password" placeholder="Password" type="password" required>
+  <button class="btn btn-dark w-100" type="submit">Register</button>
+</form>
+<script>
+const base = '/api';
+const toJSON = r => r.json();
+document.getElementById('loginForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const f = new FormData(e.target);
+  const payload = Object.fromEntries(f.entries());
+  const res = await fetch(`${base}/auth/login`, {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload)});
+  if (res.ok) { window.location = '/dashboard'; } else { alert('Login failed'); }
+});
+
+document.getElementById('registerForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const f = new FormData(e.target);
+  const payload = Object.fromEntries(f.entries());
+  const res = await fetch(`${base}/auth/register`, {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload)});
+  if (res.ok) { alert('Registered. Please login.'); } else { alert('Registration failed'); }
+});
+</script>
+{% endblock %}
